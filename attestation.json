@@ -1,0 +1,9 @@
+{
+  "pluginId": "neobase.peche",
+  "repo": "NDesumeur/neobase-plugin-peche",
+  "version": "1.0.1",
+  "sha256": "8ec795bcb86782ab0e96efd45028f65d90125894d11a4b9c57a134ba59cc574e",
+  "approvedAt": "2026-10-31T17:51:20.976Z",
+  "neobase": ">=4.0.0",
+  "signature": "RscILiRFWKuxB5kpKHf0OI/g6+HJXxBJFrYZ8vb1hATk/wRdr+e1IwwgMz1m6sY42teeHpR3nTRUaoBfTfemCQ=="
+}
