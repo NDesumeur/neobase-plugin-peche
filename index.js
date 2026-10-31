@@ -197,7 +197,32 @@ Requin-lutin|A|*|*|4|200-400|s|eaa,fcc,c88|-|k
 Poisson-tripode|A|*|*|2|20-35|g|776,998,665|-|g
 Pieuvre Dumbo|A|*|*|3|10-30|c|f9b,fcd,f9b|-|g
 Kraken|A|N|P|5|800-1500|c|a34,e78,f6a|n|k
-Poisson-NeoBase|A|N|*|5|50-80|f|e1c,fff,7fe|n|g`;
+Poisson-NeoBase|A|N|*|5|50-80|f|e1c,fff,7fe|n|g
+Vairon|ER|J|*|1|6-12|f|9a8,dde,c66|-|pa
+Goujon|R|J|*|1|8-15|g|987,cca,ba6|-|pa
+Épinoche|EL|J|*|1|4-8|f|7a5,cd9,e63|-|pv
+Truite arc-en-ciel|RL|J|S|3|25-70|f|8a9,fdd,f5a|-|pa
+Omble chevalier|L|A|*|3|25-60|f|576,fb8,f64|-|pa
+Silure géant|EL|N|*|4|100-250|l|665,aa8,886|-|k
+Esturgeon|RL|*|*|4|100-300|g|678,ccd,99a|d|g
+Maquereau|C|J|*|1|20-40|f|58c,cde,9bd|-|pa
+Sardine|CT|J|*|1|12-22|f|7ac,eef,bce|-|pa
+Bar commun|C|A|*|2|30-90|f|99a,dde,aab|-|pv
+Dorade royale|CT|J|*|2|25-60|h|9aa,eed,fc4|-|pv
+Rouget barbet|CT|J|*|2|15-35|f|e66,fcb,f87|-|pv
+Raie pastenague|C|*|*|3|40-150|r|987,ddb,765|-|g
+Poisson-clown|T|J|S|2|6-12|h|f84,fff,fa4|s|pa
+Poisson-ange royal|T|J|*|3|15-40|y|48f,fd4,4cf|s|pa
+Poisson-perroquet|T|J|*|3|30-80|h|4cb,fa6,6df|-|pv
+Raie manta|T|*|*|4|200-500|x|445,eee,667|-|g
+Thon rouge|CT|*|*|4|100-250|f|358,cde,a44|-|k
+Espadon|CT|A|S|4|150-350|e|568,dde,445|-|k
+Phoque-poisson givré|B|*|N|3|40-90|h|9bd,eef,cff|-|g
+Morue arctique|B|*|*|2|40-100|g|987,eed,775|-|pv
+Lompe des glaces|B|N|*|3|10-30|h|9ac,def,6bd|-|pv
+Anguille lanterne|A|N|*|3|40-120|l|235,5f9,4fa|n|k
+Baudroie fantôme|A|N|*|4|40-120|c|333,a6c,f9f|n|k
+Poisson-hache cristal|A|*|*|3|8-20|y|79c,cff,9ef|n|pv`;
 const FI_SPOTS = {
   E: {name: 'Étang des saules', price: 0, water: ['#3d6e7a', '#244a58', '#102632'], sky: 1, shore: 'wood', decor: 'saules', weather: {clair: 4, nuageux: 3, pluie: 2, orage: .5, brouillard: 1}},
   R: {name: 'Rivière claire', price: 600, water: ['#4a8a96', '#2b6070', '#14343f'], shore: 'wood', decor: 'collines', flow: true, weather: {clair: 4, nuageux: 3, pluie: 2.5, orage: .6, brouillard: 1}},
@@ -544,6 +569,16 @@ function fiFisher(g, x, y, pose) {  // 12 x 18, standing on the shore
   sprite(g, rows, x, y, P);
 }
 function fiLine(g, x0, y0, x1, y1, color, w = 1) { const n = Math.max(Math.abs(x1 - x0), Math.abs(y1 - y0)); for (let i = 0; i <= n; i++) px(g, color, x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, w, w); }
+function fiUnder(g, spot, key) {  // sous l'eau : rayons de lumière, fond sableux, algues qui ondulent, bulles qui montent
+  const {W, H, WY} = FI, [w1, , w3] = spot.water, t = fi.tick;
+  for (let i = 0; i < 4; i++) { const x = (i * 97 + 30 + Math.sin(t / 150 + i) * 10) % W; for (let y = WY + 1; y < H - 22; y += 2) px(g, 'rgba(255,255,255,.045)', x + (y - WY) / 5, y, 7 + i, 2); }
+  const sand = spot.dark ? '#1a2250' : key === 'B' ? '#8fb2d2' : key === 'T' ? '#e8d8a0' : '#6a6a5a';
+  for (let x = 0; x < W; x += 2) { const h = 14 + Math.round(Math.sin(x / 23) * 3 + Math.sin(x / 7) * 1.2); px(g, mixc(sand, w3, .35), x, H - h, 2, h); px(g, sand, x, H - h, 2, 1); }
+  const kelp = key === 'B' ? '#6ac0c0' : key === 'T' ? '#f08a9a' : spot.dark ? '#2a6a8a' : '#4a9a5a';
+  for (let i = 0; i < 12; i++) { const bx = 100 + ((i * 53) % (W - 110)), len = 10 + (i * 7) % 16; for (let j = 0; j < len; j += 2) px(g, mixc(kelp, w3, j / len * .6), bx + Math.sin(t / 30 + i + j / 5) * (1 + j / 8), H - 14 - j, 2, 2); }
+  if (key === 'T') for (const x of [150, 230, 300]) { px(g, '#ff6a8a', x, H - 20, 8, 6); px(g, '#ffb06a', x + 2, H - 24, 4, 4); }
+  for (let i = 0; i < 10; i++) { const y = H - ((t * (.12 + i % 4 * .04) + i * 31) % (H - WY)), x = 110 + (i * 71) % (W - 120) + Math.sin(t / 20 + i) * 2; px(g, 'rgba(255,255,255,.4)', x, y, 1 + i % 2, 1 + i % 2); }
+}
 function fiDraw() {
   const g = fi.g, {W, H, WY} = FI, s = fiSave(), h = fiHour(), spot = FI_SPOTS[s.spot], night = Math.max(fiNight(h), spot.dark ? .45 : 0), [top, bot] = fiSkyAt(h);
   for (let y = 0; y < WY; y += 4) { const k = y / WY; g.fillStyle = mixc(top, bot, Math.round(k * 8) / 8); g.fillRect(0, y, W, 4); }  // banded sky
@@ -554,6 +589,7 @@ function fiDraw() {
   for (let y = WY; y < H; y += 2) { const k = (y - WY) / (H - WY); g.fillStyle = k < .3 ? mixc(w1, w2, k / .3) : mixc(w2, w3, (k - .3) / .7); g.fillRect(0, y, W, 2); }
   for (let i = 0; i < 40; i++) { const y = WY + 2 + (i * 37) % (H - WY - 4), x = ((i * 91 + fi.tick * (spot.flow ? .6 : .15) * (1 + i % 3)) % (W + 40)) - 20; px(g, 'rgba(255,255,255,.12)', x, y, 6 + i % 5, 1); }
   px(g, mixc(w1, '#ffffff', .35), 0, WY, W, 1);
+  fiUnder(g, spot, s.spot);
   if (h >= 6 && h <= 18) { const x = 30 + (W - 60) * (h - 6) / 12; for (let y = WY + 2; y < WY + 40; y += 3) px(g, 'rgba(255,240,200,.35)', x - 4 + Math.sin(y + fi.tick / 10) * 3, y, 8 - (y - WY) / 8, 1); }
   for (const sh of fi.shadows) { g.fillStyle = 'rgba(5,1,20,.22)'; g.fillRect(Math.round(sh.x - sh.w / 2), Math.round(sh.y), Math.round(sh.w), 3); g.fillRect(Math.round(sh.x - sh.w / 2 - (sh.vx > 0 ? 3 : -sh.w)), Math.round(sh.y - 1), 3, 5); }
   if (fi.phase === 'fight' && fi.bob && fi.jump > 0 && !fi.special) {  // the fish leaps out of the water
