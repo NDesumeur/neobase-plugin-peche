@@ -1,7 +1,7 @@
 {
   "id": "neobase.peche",
   "name": "Pêche",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "NDesumeur",
   "description": "Lance ta ligne de lieu en lieu : des dizaines d'espèces dessinées, appâts, cannes, météo et collection.",
   "icon": "icon.png",

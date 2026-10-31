@@ -2,11 +2,30 @@
 // Ses données sont dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoBase.
 // Elle demande l'accès complet pour utiliser les outils d'interface de NeoBase. NeoBase ne l'ouvre que si elle est signée.
 const HTML = "<div class=\"appWrap wide\">\n      <div class=\"agHead\"><span class=\"label\">Pêche</span><span class=\"hint\" id=\"fiInfo\"></span><div class=\"agNav\"><select class=\"f gSel\" id=\"fiSpot\"></select><select class=\"f gSel\" id=\"fiBait\"></select><button class=\"btn px\" id=\"fiShopBtn\">BOUTIQUE</button><button class=\"btn px\" id=\"fiDexBtn\">COLLECTION</button><button class=\"btn px\" id=\"fiQuestBtn\">DÉFIS</button></div></div>\n      <div class=\"gameBox g169\"><canvas id=\"fiCanvas\" width=\"384\" height=\"216\"></canvas></div>\n      <div id=\"fiShop\" class=\"fiPanel\" style=\"display:none\"></div>\n      <div id=\"fiDex\" class=\"fiPanel\" style=\"display:none\"></div>\n      <div id=\"fiQuest\" class=\"fiPanel\" style=\"display:none\"></div>\n      <div class=\"hint\">Maintiens clic ou espace pour doser le lancer, attends la vraie touche (pas les frémissements) et clique vite : un ferrage parfait fatigue déjà le poisson. Maintiens pour remonter, relâche quand il tire ou saute, et contre ses départs avec ← → (ou la souris). Niveau de pêcheur, défis du jour, séries de prises et trésors. Chaque espèce a ses lieux, ses heures, sa météo et ses appâts. La partie est sauvegardée et synchronisée.</div>\n    </div>";
+/*CSS-MOVED*/ const CSS = `.gameBox{display:grid;place-items:center;padding:10px;background:#05010b;box-shadow:0 0 0 3px var(--line2)}
+.gameBox canvas{width:min(100%,1152px);aspect-ratio:384/144;image-rendering:pixelated;cursor:var(--cp,pointer)}
+.gameBox.tall canvas{width:auto;height:min(720px,72vh);aspect-ratio:240/320}
+.gSel{width:auto;font-size:14px;padding:6px 10px;margin-right:8px}
+.gameBox.g169 canvas{aspect-ratio:384/216;width:min(100%,calc((100vh - 250px) * 1.777))}
+#fiQuest .fiItem.done{--c:#2f8f5a;opacity:.85}
+.fiPanel{display:flex;flex-direction:column;gap:14px}
+.fiItem .btn{height:36px;font-size:15px;margin-top:auto}
+.fiTabs .btn{height:34px;font-size:14px;padding:0 10px}
+.fiGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px}
+.fiCell{--fill:var(--win);--c:var(--line);border:0;padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;cursor:var(--cp,pointer);color:#fff;font:14px var(--text);min-height:96px;justify-content:center}
+.fiCell img{max-width:100%;image-rendering:pixelated}
+.fiCell:not(.unknown){--c:var(--rc)}
+.fiCell.unknown span{color:var(--muted)}
+.fiCell.on{--fill:var(--btnh)}
+.fiDetail{flex-direction:row;align-items:center;gap:20px;flex-wrap:wrap}
+.fiDetail img{image-rendering:pixelated;max-width:240px}
+`;  // le style de ce plugin (il utilise les variables du thème de NeoBase)
 export default async function (ctx) {
   const view = ctx.view;
   if (!ctx.host) { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
   const host = ctx.host, { el, toast, sfx, ask, newTab, pixIcon, PIX, WX } = host;
   const folder = ctx.folder, legacy = ctx.legacy || {};
+  ctx.host.addStyle(CSS);
   view.innerHTML = HTML;
   const $ = id => id === "fishingApp" ? view : (view.querySelector('#' + id) || document.getElementById(id));  // les identifiants de ta vue d'abord, puis ceux de la page (fenêtres, menus)
   const doc = async n => { try { return await folder.read(n); } catch { return null; } };
