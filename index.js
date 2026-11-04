@@ -1,6 +1,6 @@
 // Pêche : ton appli d'origine (HTML et code inchangés), livrée en plugin.
-// Ses données sont dans le dossier du plugin, que NeoBase sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoBase.
-// Elle tourne dans le bac à sable de NeoBase, avec ses outils d'interface (ctx.host) et seulement les autorisations de son plugin.json.
+// Ses données sont dans le dossier du plugin, que NeoDex sauvegarde (synchro cloud et sauvegardes) ; à la première ouverture elle reprend ce que tu avais dans NeoDex.
+// Elle tourne dans le bac à sable de NeoDex, avec ses outils d'interface (ctx.host) et seulement les autorisations de son plugin.json.
 const HTML = "<div class=\"appWrap wide\">\n      <div class=\"agHead\"><span class=\"label\">Pêche</span><span class=\"hint\" id=\"fiInfo\"></span><div class=\"agNav\"><select class=\"f gSel\" id=\"fiSpot\"></select><select class=\"f gSel\" id=\"fiBait\"></select><button class=\"btn px\" id=\"fiShopBtn\">BOUTIQUE</button><button class=\"btn px\" id=\"fiDexBtn\">COLLECTION</button><button class=\"btn px\" id=\"fiQuestBtn\">DÉFIS</button></div></div>\n      <div class=\"gameBox g169\"><canvas id=\"fiCanvas\" width=\"384\" height=\"216\"></canvas></div>\n      <div id=\"fiShop\" class=\"fiPanel\" style=\"display:none\"></div>\n      <div id=\"fiDex\" class=\"fiPanel\" style=\"display:none\"></div>\n      <div id=\"fiQuest\" class=\"fiPanel\" style=\"display:none\"></div>\n      <div class=\"hint\">Maintiens clic ou espace pour doser le lancer, attends la vraie touche (pas les frémissements) et clique vite : un ferrage parfait fatigue déjà le poisson. Maintiens pour remonter, relâche quand il tire ou saute, et contre ses départs avec ← → (ou la souris). Niveau de pêcheur, défis du jour, séries de prises et trésors. Chaque espèce a ses lieux, ses heures, sa météo et ses appâts. La partie est sauvegardée et synchronisée.</div>\n    </div>";
 /*CSS-MOVED*/ const CSS = `.gameBox{display:grid;place-items:center;padding:10px;background:#05010b;box-shadow:0 0 0 3px var(--line2)}
 .gameBox canvas{width:min(100%,1152px);aspect-ratio:384/144;image-rendering:pixelated;cursor:var(--cp,pointer)}
@@ -19,10 +19,10 @@ const HTML = "<div class=\"appWrap wide\">\n      <div class=\"agHead\"><span cl
 .fiCell.on{--fill:var(--btnh)}
 .fiDetail{flex-direction:row;align-items:center;gap:20px;flex-wrap:wrap}
 .fiDetail img{image-rendering:pixelated;max-width:240px}
-`;  // le style de ce plugin (il utilise les variables du thème de NeoBase)
+`;  // le style de ce plugin (il utilise les variables du thème de NeoDex)
 export default async function (ctx) {
   const view = ctx.view;
-  if (!ctx.host) { view.textContent = "Ce plugin doit être approuvé par NeoBase pour s'ouvrir."; return; }
+  if (!ctx.host) { view.textContent = "Ce plugin doit être approuvé par NeoDex pour s'ouvrir."; return; }
   const host = ctx.host, { el, toast, sfx, ask, newTab, pixIcon, PIX, WX } = host;
   const folder = ctx.folder, legacy = ctx.legacy || {};
   ctx.host.addStyle(CSS);
@@ -66,7 +66,7 @@ const seeded = s => () => { s = s + 0x6D2B79F5 | 0; let t = Math.imul(s ^ s >>> 
 
 const pxFont = (g, text, x, y, color, size = 8, align = 'left') => { g.font = size + 'px "Press Start 2P", monospace'; g.textAlign = align; g.fillStyle = '#05010b'; g.fillText(text, x + 1, y + 1); g.fillStyle = color; g.fillText(text, x, y); g.textAlign = 'left'; };
 
-/* NeoBase games, part 5: Pêche. 7 places, 128 species drawn by code in pixel art, day / night and weather, rods and baits, a collection.
+/* NeoDex games, part 5: Pêche. 7 places, 128 species drawn by code in pixel art, day / night and weather, rods and baits, a collection.
    The whole game (money, gear, places, collection, clock) is saved in games.fish, so it follows you between PCs. */
 
 /* name | places | time (J day, A dawn & dusk, N night, * any) | weather (* any, P rain or storm, S clear, N snow) | rarity 1-5 | size cm | shape | back, belly, fins | pattern | baits it likes */
@@ -197,7 +197,7 @@ Requin-lutin|A|*|*|4|200-400|s|eaa,fcc,c88|-|k
 Poisson-tripode|A|*|*|2|20-35|g|776,998,665|-|g
 Pieuvre Dumbo|A|*|*|3|10-30|c|f9b,fcd,f9b|-|g
 Kraken|A|N|P|5|800-1500|c|a34,e78,f6a|n|k
-Poisson-NeoBase|A|N|*|5|50-80|f|e1c,fff,7fe|n|g
+Poisson-NeoDex|A|N|*|5|50-80|f|e1c,fff,7fe|n|g
 Vairon|ER|J|*|1|6-12|f|9a8,dde,c66|-|pa
 Goujon|R|J|*|1|8-15|g|987,cca,ba6|-|pa
 Épinoche|EL|J|*|1|4-8|f|7a5,cd9,e63|-|pv
@@ -445,7 +445,7 @@ function fiStart() {
   Object.assign(fi, {g: $('fiCanvas').getContext('2d'), mode: 'play', tick: 0, phase: 'idle', power: 0, bob: null, msg: null, shadows: [], rain: [], decor: fiDecor(s.spot), decorSpot: s.spot, flash: 0, card: null, holding: false,
     stars: Array.from({length: 80}, () => [Math.random() * FI.W, Math.random() * 80, Math.random()]), clouds: Array.from({length: 6}, () => [Math.random() * FI.W, 8 + Math.random() * 40, 20 + Math.random() * 30])});
   for (let i = 0; i < 6; i++) fi.shadows.push({x: 130 + Math.random() * 240, y: FI.WY + 20 + Math.random() * 80, vx: (Math.random() - .5) * .3, w: 8 + Math.random() * 16});
-  fiUi(); gameLoop(fi, 'neodyme:fishing', fiUpdate, fiDraw);
+  fiUi(); gameLoop(fi, 'neodex:fishing', fiUpdate, fiDraw);
 }
 function fiSay(text, color = '#ffffff', t = 150) { fi.msg = {text, color, t}; }
 function fiPress(down) {
@@ -736,7 +736,7 @@ $('fiQuestBtn').onclick = () => { fiPanel = fiPanel === 'quest' ? '' : 'quest'; 
 document.addEventListener('keydown', e => { if (!view.classList.contains('on') || !fi || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName)) return; const k = e.key.toLowerCase(); if (['arrowleft', 'q', 'a'].includes(k)) { e.preventDefault(); fi.steer = -1; } if (['arrowright', 'd'].includes(k)) { e.preventDefault(); fi.steer = 1; } if (e.key === ' ') { e.preventDefault(); if (!e.repeat) fiPress(true); } if ((e.key === 'p' || e.key === 'Escape') && fi.mode === 'play') fi.mode = 'pause'; });
 document.addEventListener('keyup', e => { if (e.key === ' ' && fi) fiPress(false); const k = e.key.toLowerCase(); if (fi && (['arrowleft', 'q', 'a'].includes(k) && fi.steer < 0 || ['arrowright', 'd'].includes(k) && fi.steer > 0)) fi.steer = 0; });
 $('fiCanvas').onpointermove = e => { if (!fi || fi.phase !== 'fight' || !fi.holding || !e.pointerType.startsWith('mouse')) return; const r = e.currentTarget.getBoundingClientRect(), x = (e.clientX - r.left) / r.width; fi.steer = x < .38 ? -1 : x > .62 ? 1 : 0; };
-const fiOpen = () => fi ? (fiUi(), gameLoop(fi, 'neodyme:fishing', fiUpdate, fiDraw)) : fiStart();
+const fiOpen = () => fi ? (fiUi(), gameLoop(fi, 'neodex:fishing', fiUpdate, fiDraw)) : fiStart();
 
 const aqSave = () => gstore('aquarium', {tanks: [{water: 'douce', size: 0, filter: false, feeder: false, decor: [], food: 100, dirt: 0, fish: []}], pool: [], cash: 0, last: Date.now(), gift: false, earned: 0, visitors: 0, seq: 1});
 const aqKeep = (id, cm) => { const s = aqSave(); s.pool.push({id, cm, k: s.seq++}); if (s.pool.length > 60) s.pool.shift(); };
